@@ -45,7 +45,7 @@ int main(int argc, char** argv)
     SurfaceComposerClient::openGlobalTransaction();
     surfaceControl->setLayer(100000);
     SurfaceComposerClient::closeGlobalTransaction();
-
+	
     ANativeWindow_Buffer outBuffer;
     surface->lock(&outBuffer, NULL);
     ssize_t bpr = outBuffer.stride * bytesPerPixel(outBuffer.format);
@@ -58,16 +58,22 @@ int main(int argc, char** argv)
     surface->unlockAndPost();
 	sleep(3);
 	
+	SurfaceComposerClient::openGlobalTransaction();
+    surfaceControl->setSize(320, 240);
+    SurfaceComposerClient::closeGlobalTransaction();
+	
 	surface->lock(&outBuffer, NULL);
     android_memset16((uint16_t*)outBuffer.bits, 0x001F, bpr*outBuffer.height);
     surface->unlockAndPost();
 	sleep(3);
 	
-    SurfaceComposerClient::openGlobalTransaction();
-    surfaceControl->setSize(320, 240);
-    SurfaceComposerClient::closeGlobalTransaction();
+	for (int i = 0; i < 100 ; i++)
+	{
+		surface->lock(&outBuffer, NULL);
+		printf("%03d buff addr = 0x%x\n",i, (unsigned int)(outBuffer.bits));
+		surface->unlockAndPost();
+	}
 
-    
     IPCThreadState::self()->joinThreadPool();
     
     return 0;
